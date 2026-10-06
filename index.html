@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Great Chola Dynasty — Imperial Saga of the Seas</title>
+
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #0B0A0C;
+      --bg-gradient: #2C0C10;
+      --chola-gold: #E8B04A;
+      --chola-gold-soft: #D4A03A;
+      --temple-ochre: #C45A2C;
+      --temple-crimson: #8B2E2A;
+      --bronze: #B87333;
+      --stone-green: #4A5C4A;
+      --card-bg: rgba(20, 16, 18, 0.84);
+      --card-border: rgba(232, 176, 74, 0.35);
+      --text-parchment: #F5ECD8;
+      --text-muted: #C9B89A;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-parchment);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background:
+        radial-gradient(ellipse at 25% 15%, rgba(139, 46, 42, 0.14) 0%, transparent 48%),
+        radial-gradient(ellipse at 75% 85%, rgba(184, 115, 51, 0.09) 0%, transparent 45%),
+        radial-gradient(circle at center, var(--bg-gradient) 0%, var(--bg-dark) 78%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .bg-overlay::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .horizontal-container {
+      display: flex;
+      width: 1200vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .panel {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .global-timeline-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .timeline-path {
+      stroke: var(--chola-gold);
+      stroke-width: 3.5;
+      fill: none;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 10px rgba(232, 176, 74, 0.5));
+      opacity: 0.9;
+    }
+
+    /* ========== HERO ========== */
+    .hero-content {
+      text-align: center;
+      max-width: 960px;
+      padding: 20px 28px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: 0.92rem;
+      letter-spacing: 6.5px;
+      color: var(--temple-ochre);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .grand-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(3.1rem, 6.8vw, 5.4rem);
+      color: var(--chola-gold);
+      text-shadow:
+        0 0 38px rgba(232, 176, 74, 0.38),
+        0 2px 4px rgba(0,0,0,0.45);
+      line-height: 1.08;
+      margin-bottom: 26px;
+      font-weight: 900;
+    }
+
+    .hero-intro {
+      font-size: 1.12rem;
+      line-height: 1.68;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 34px;
+    }
+
+    .scroll-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 13px;
+      color: var(--text-parchment);
+      opacity: 0.88;
+      font-size: 0.8rem;
+      letter-spacing: 3.5px;
+      font-family: 'Cinzel', serif;
+      text-transform: uppercase;
+    }
+
+    .arrow-right {
+      color: var(--chola-gold);
+      font-size: 1.35rem;
+      animation: pulseRight 1.6s infinite alternate;
+    }
+
+    @keyframes pulseRight {
+      0% { transform: translateX(0); opacity: 0.7; }
+      100% { transform: translateX(9px); opacity: 1; }
+    }
+
+    /* ========== TIMELINE NODES ========== */
+    .timeline-node {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .node-dot {
+      width: 17px;
+      height: 17px;
+      background: radial-gradient(circle at 35% 35%, #F5D78A, var(--chola-gold));
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 4px rgba(232, 176, 74, 0.22),
+        0 0 20px var(--chola-gold),
+        0 0 42px rgba(232, 176, 74, 0.4);
+      position: absolute;
+      z-index: 5;
+    }
+
+    .description-card {
+      position: absolute;
+      bottom: 11%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 26px 34px;
+      border-radius: 5px;
+      max-width: 530px;
+      text-align: center;
+      box-shadow:
+        0 12px 38px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(232, 176, 74, 0.1);
+    }
+
+    .description-card .era {
+      font-family: 'Cinzel', serif;
+      font-size: 0.76rem;
+      letter-spacing: 2.8px;
+      color: var(--temple-ochre);
+      text-transform: uppercase;
+      margin-bottom: 7px;
+      display: block;
+    }
+
+    .description-card h2 {
+      font-family: 'Cinzel Decorative', serif;
+      color: var(--chola-gold);
+      font-size: 1.58rem;
+      margin-bottom: 13px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .description-card p {
+      font-size: 1rem;
+      line-height: 1.62;
+      color: var(--text-parchment);
+    }
+
+    .description-card .detail {
+      margin-top: 13px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      border-top: 1px solid rgba(232, 176, 74, 0.16);
+      padding-top: 11px;
+    }
+
+    /* ========== IMAGE CARDS ========== */
+    .image-card {
+      position: absolute;
+      width: 250px;
+      height: 185px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 9px 26px rgba(0, 0, 0, 0.5);
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+    }
+
+    .image-card:hover {
+      transform: scale(1.05) translateY(-3px);
+      box-shadow:
+        0 0 26px rgba(232, 176, 74, 0.25),
+        0 14px 36px rgba(0, 0, 0, 0.55);
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.55s ease;
+    }
+
+    .image-card:hover img {
+      transform: scale(1.09);
+    }
+
+    .image-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(10, 8, 10, 0.9), transparent);
+      color: var(--chola-gold);
+      font-size: 0.7rem;
+      padding: 24px 11px 10px;
+      text-align: center;
+      letter-spacing: 0.7px;
+      font-weight: 600;
+      font-family: 'Cinzel', serif;
+      text-transform: uppercase;
+    }
+
+    .card-top-left     { top: 8%; left: 8%; }
+    .card-top-right    { top: 10%; right: 8%; }
+    .card-bottom-left  { bottom: 10%; left: 6%; }
+    .card-bottom-right { bottom: 10%; right: 6%; }
+
+    /* ========== FINAL ENDING ========== */
+    .ending-card {
+      text-align: center;
+      max-width: 760px;
+      padding: 38px 28px;
+      z-index: 2;
+    }
+
+    .ending-card h1 {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(2.5rem, 4.8vw, 3.7rem);
+      color: var(--chola-gold);
+      text-shadow: 0 0 32px rgba(232, 176, 74, 0.42);
+      margin-bottom: 26px;
+      line-height: 1.2;
+    }
+
+    .ending-card p {
+      font-size: 1.15rem;
+      line-height: 1.72;
+      color: var(--text-parchment);
+      margin-bottom: 20px;
+    }
+
+    .ending-card .final-line {
+      font-family: 'Cinzel', serif;
+      font-size: 0.92rem;
+      letter-spacing: 4.5px;
+      color: var(--temple-ochre);
+      text-transform: uppercase;
+      margin-top: 30px;
+    }
+
+    .description-card::before,
+    .description-card::after {
+      content: "✦";
+      position: absolute;
+      color: var(--chola-gold);
+      opacity: 0.32;
+      font-size: 0.65rem;
+    }
+    .description-card::before { top: 9px; left: 13px; }
+    .description-card::after  { bottom: 9px; right: 13px; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-overlay"></div>
+
+  <main class="horizontal-container">
+
+    <svg id="global-svg" class="global-timeline-svg">
+      <path id="timeline-path" class="timeline-path" />
+    </svg>
+
+    <!-- ========== HERO ========== -->
+    <section class="panel hero-panel">
+      <div class="hero-content">
+        <span class="subtitle">The Imperial Saga of the Seas</span>
+        <h1 class="grand-title">THE GREAT CHOLA DYNASTY</h1>
+        <p class="hero-intro">
+          From the banks of the Kaveri to the shores of Srivijaya — four centuries of conquest, 
+          temple building, bronze mastery, and maritime dominion that shaped the soul of Tamil civilisation.
+        </p>
+        <div class="scroll-indicator">
+          <span>Enter the Great Saga</span>
+          <div class="arrow-right">→</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 1 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-1" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="vijayalaya.jpg" alt="Vijayalaya Chola" />
+          <div class="image-caption">Vijayalaya</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="inscriptions.jpg" alt="Early Inscriptions" />
+          <div class="image-caption">Early Inscriptions</div>
+        </div>
+        <div class="description-card">
+          <span class="era">c. 848 – 871 CE</span>
+          <h2>The Re-emergence</h2>
+          <p>Vijayalaya Chola, rising from the shadows of Pallava overlordship, seized Thanjavur from the Muttaraiyars and restored the ancient Chola line. He founded a temple to the goddess Niśumbhasūdinī (Durgā) and laid the first stones of an imperial future.</p>
+          <p class="detail">Thanjavur became the new capital. The tiger emblem returned to the banners of the Tamil country.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="thanjavur.jpg" alt="Thanjavur Foundation" />
+          <div class="image-caption">Thanjavur</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="seal.jpg" alt="Royal Seal" />
+          <div class="image-caption">Tiger Seal</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 2 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-2" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="aditya.jpg" alt="Aditya I" />
+          <div class="image-caption">Aditya I</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="pallava.jpg" alt="Pallava Defeat" />
+          <div class="image-caption">Fall of the Pallavas</div>
+        </div>
+        <div class="description-card">
+          <span class="era">871 – 907 CE</span>
+          <h2>Aditya I — Kodandarama</h2>
+          <p>Son of Vijayalaya, Aditya I ended Pallava supremacy by defeating Aparajita at the decisive battle of Śrīpurambiyam. He absorbed Tondaimandalam and brought the fertile Kaveri delta fully under Chola control.</p>
+          <p class="detail">He is remembered for building a chain of Śiva temples along the banks of the Kaveri — the first great wave of Chola stone architecture.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="kanchipuram.jpg" alt="Kanchipuram" />
+          <div class="image-caption">Kanchipuram</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="victory.jpg" alt="Victory Stele" />
+          <div class="image-caption">Victory Memorials</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 3 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-3" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="parantaka.jpg" alt="Parantaka I" />
+          <div class="image-caption">Parantaka I</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="rashtrakuta.jpg" alt="Rashtrakuta Wars" />
+          <div class="image-caption">Rashtrakuta Wars</div>
+        </div>
+        <div class="description-card">
+          <span class="era">907 – 955 CE</span>
+          <h2>Parantaka I — Maduraiyum Kondan</h2>
+          <p>Parantaka I pushed Chola power south to Madurai, temporarily subdued the Pandyas, and briefly held parts of Sri Lanka. His reign saw the first major clash with the Rashtrakutas, culminating in the costly defeat at Takkolam (949 CE).</p>
+          <p class="detail">Despite the setback, he consolidated the core Tamil territories and left a realm ready for the imperial leap.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="madurai.jpg" alt="Madurai Conquest" />
+          <div class="image-caption">Madurai</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="expansion.jpg" alt="Northern Expansion" />
+          <div class="image-caption">Northern Frontiers</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 4 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-4" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="rajaraja.jpg" alt="Rajaraja Chola" />
+          <div class="image-caption">Rajaraja I</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="brihadeeswarar.jpg" alt="Brihadeeswarar Temple" />
+          <div class="image-caption">Brihadīśvara</div>
+        </div>
+        <div class="description-card">
+          <span class="era">985 – 1014 CE</span>
+          <h2>Rajaraja the Great</h2>
+          <p>Arulmozhivarman, later Rajaraja I, transformed a regional kingdom into the pre-eminent power of South Asia. He conquered Kerala, northern Sri Lanka, the Maldives, and parts of Karnataka. In 1010 he consecrated the monumental Brihadīśvara Temple at Thanjavur — still one of the greatest architectural achievements of the medieval world.</p>
+          <p class="detail">He ordered a comprehensive land survey, created a deep taxation system, and filled the temple with gold, jewels, and thousands of tonnes of rice from conquered lands.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="navy.jpg" alt="Chola Navy" />
+          <div class="image-caption">Imperial Navy</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="empire.jpg" alt="Imperial Peak" />
+          <div class="image-caption">Imperial Apex</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 5 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-5" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="rajendra.jpg" alt="Rajendra Chola" />
+          <div class="image-caption">Rajendra I</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="ganges.jpg" alt="Ganges Expedition" />
+          <div class="image-caption">Gangaikonda</div>
+        </div>
+        <div class="description-card">
+          <span class="era">1014 – 1044 CE</span>
+          <h2>Rajendra Chola — Lord of the Oceans</h2>
+          <p>Rajendra I completed the conquest of Sri Lanka, marched north to the Ganges (earning the title Gangaikonda Chola), founded a new capital at Gangaikonda Cholapuram, and in 1025 launched the only major trans-oceanic naval expedition by an Indian power in the medieval period — striking the Srivijaya empire in present-day Malaysia and Sumatra.</p>
+          <p class="detail">He controlled the Strait of Malacca trade routes and brought Ganges water to consecrate his new city.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="srivijaya.jpg" alt="Srivijaya Conquest" />
+          <div class="image-caption">Srivijaya</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="fleet.jpg" alt="Chola Fleet" />
+          <div class="image-caption">Ocean Fleet</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 6 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-6" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="rajadhiraja.jpg" alt="Rajadhiraja" />
+          <div class="image-caption">Rajadhiraja I</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="battle.jpg" alt="Fierce Battles" />
+          <div class="image-caption">Battlefield</div>
+        </div>
+        <div class="description-card">
+          <span class="era">1044 – 1054 CE</span>
+          <h2>Rajadhiraja — The Warrior Emperor</h2>
+          <p>Eldest son of Rajendra, Rajadhiraja spent his reign in almost continuous warfare defending the vast frontiers his father had created. He fought the Western Chalukyas, Pandyas, and Sinhalese forces with relentless energy.</p>
+          <p class="detail">He died in battle at Koppam (1054), still fighting — a rare imperial death on the field that cemented his martial legend.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="war.jpg" alt="Battlefield Glory" />
+          <div class="image-caption">Koppaṃ</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="heroism.jpg" alt="Warrior King" />
+          <div class="image-caption">Martial Glory</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 7 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-7" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="kulottunga.jpg" alt="Kulottunga I" />
+          <div class="image-caption">Kulottunga I</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="stability.jpg" alt="Long Peace" />
+          <div class="image-caption">Stability</div>
+        </div>
+        <div class="description-card">
+          <span class="era">1070 – 1122 CE</span>
+          <h2>Kulottunga I — The Long Peace</h2>
+          <p>Grandson of Rajendra through his daughter, Kulottunga united the Chola and Eastern Chalukya crowns. His half-century reign emphasised administration, land surveys, and internal stability over constant expansion. Overseas territories gradually slipped away, yet the core empire remained prosperous.</p>
+          <p class="detail">Court poets such as Jayankondar celebrated his victories in the Kalingattuparani. Trade and temple endowment flourished.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="trade.jpg" alt="Flourishing Trade" />
+          <div class="image-caption">Maritime Trade</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="unity.jpg" alt="Imperial Unity" />
+          <div class="image-caption">Imperial Unity</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 8 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-8" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="nataraja.jpg" alt="Nataraja Bronze" />
+          <div class="image-caption">Naṭarāja</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="bronze.jpg" alt="Chola Bronzes" />
+          <div class="image-caption">Chola Bronzes</div>
+        </div>
+        <div class="description-card">
+          <span class="era">10th – 13th Century</span>
+          <h2>Golden Age of Art & Faith</h2>
+          <p>Under the Cholas the lost-wax bronze tradition reached perfection. The iconic Naṭarāja — Śiva as Lord of the Dance — remains one of the most recognisable and spiritually profound images in world art. Monumental granite temples, exquisite stone sculpture, and a flowering of Tamil literature (including the final compilation of the Tirumurai) defined the era.</p>
+          <p class="detail">Temples were not merely places of worship but economic, administrative, and cultural centres of the empire.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="literature.jpg" alt="Tamil Literature" />
+          <div class="image-caption">Tamil Literature</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="sculpture.jpg" alt="Temple Sculpture" />
+          <div class="image-caption">Stone Sculpture</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 9 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-9" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="administration.jpg" alt="Administration" />
+          <div class="image-caption">Administration</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="commerce.jpg" alt="Trade & Commerce" />
+          <div class="image-caption">Trade Guilds</div>
+        </div>
+        <div class="description-card">
+          <span class="era">The Living Machine</span>
+          <h2>Chola Governance & Economy</h2>
+          <p>The empire rested on sophisticated local self-government: the ūr (general village assembly), sabhā (Brahmin settlements), and nagaram (merchant towns). A dense network of merchant guilds — Ayyāvoḷe 500 and Maṇigrāmam — operated across the Bay of Bengal. Land surveys, precise taxation, and temple-centred administration made the state unusually resilient.</p>
+          <p class="detail">Nearly 10,000 inscriptions still survive — the densest epigraphic record of any pre-modern Indian dynasty.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="governance.jpg" alt="Governance" />
+          <div class="image-caption">Village Assemblies</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="system.jpg" alt="Imperial System" />
+          <div class="image-caption">Imperial System</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== POINT 10 ========== -->
+    <section class="panel timeline-panel">
+      <div class="timeline-node">
+        <div id="dot-10" class="node-dot"></div>
+        <div class="image-card card-top-left">
+          <img src="decline.jpg" alt="Decline of the Empire" />
+          <div class="image-caption">Twilight</div>
+        </div>
+        <div class="image-card card-top-right">
+          <img src="legacy.jpg" alt="Eternal Legacy" />
+          <div class="image-caption">Eternal Legacy</div>
+        </div>
+        <div class="description-card">
+          <span class="era">13th Century</span>
+          <h2>Decline & Eternal Legacy</h2>
+          <p>From the late 12th century the Pandyas of Madurai rose again. Under Maravarman Sundara Pandya and later Maravarman Kulasekara, Chola power contracted. In 1279 Rajendra III, the last imperial Chola, was defeated. The political empire ended — yet the cultural empire never did.</p>
+          <p class="detail">The great temples still stand. The bronzes still dance. The administrative genius and maritime spirit live on in the Tamil world.</p>
+        </div>
+        <div class="image-card card-bottom-left">
+          <img src="templelegacy.jpg" alt="Living Temples" />
+          <div class="image-caption">Living Temples</div>
+        </div>
+        <div class="image-card card-bottom-right">
+          <img src="influence.jpg" alt="Lasting Influence" />
+          <div class="image-caption">Living Influence</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FINAL ENDING ========== -->
+    <section class="panel">
+      <div class="ending-card">
+        <h1>The Flame Still Burns</h1>
+        <p>
+          From the shores of the Kaveri to the distant seas of Southeast Asia,<br>
+          the Cholas built an empire not only of land and power,<br>
+          but of art, faith, administration, and eternal memory.
+        </p>
+        <p>
+          Their temples still rise against the sky.<br>
+          Their bronzes still capture the cosmic dance.<br>
+          Their spirit still lives in the heart of Tamil Nadu.
+        </p>
+        <div class="final-line">The Great Chola Dynasty — Forever</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    function drawTimelinePath() {
+      const container = document.querySelector(".horizontal-container");
+      const svg = document.getElementById("global-svg");
+      const path = document.getElementById("timeline-path");
+      const dots = [
+        document.getElementById("dot-1"),
+        document.getElementById("dot-2"),
+        document.getElementById("dot-3"),
+        document.getElementById("dot-4"),
+        document.getElementById("dot-5"),
+        document.getElementById("dot-6"),
+        document.getElementById("dot-7"),
+        document.getElementById("dot-8"),
+        document.getElementById("dot-9"),
+        document.getElementById("dot-10")
+      ];
+
+      if (!container || !svg || !path || dots.some(d => !d)) return;
+
+      const w = container.scrollWidth;
+      const h = container.clientHeight;
+      svg.setAttribute("width", w);
+      svg.setAttribute("height", h);
+      svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+
+      const containerRect = container.getBoundingClientRect();
+
+      const points = dots.map(dot => {
+        const r = dot.getBoundingClientRect();
+        return {
+          x: r.left - containerRect.left + r.width / 2,
+          y: r.top  - containerRect.top  + r.height / 2
+        };
+      });
+
+      let d = `M ${points[0].x} ${points[0].y}`;
+
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[i];
+        const p1 = points[i + 1];
+        const dx = p1.x - p0.x;
+
+        const cp1x = p0.x + dx * 0.35;
+        const cp1y = p0.y - 105;
+        const cp2x = p0.x + dx * 0.65;
+        const cp2y = p1.y + 90;
+
+        d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p1.x} ${p1.y}`;
+      }
+
+      path.setAttribute("d", d);
+    }
+
+    window.addEventListener("load", () => {
+      drawTimelinePath();
+      setTimeout(drawTimelinePath, 100);
+    });
+    window.addEventListener("resize", drawTimelinePath);
+
+    const container = document.querySelector(".horizontal-container");
+
+    gsap.to(container, {
+      x: () => -(container.scrollWidth - window.innerWidth),
+      ease: "none",
+      scrollTrigger: {
+        trigger: container,
+        pin: true,
+        scrub: 1,
+        end: () => "+=" + container.scrollWidth,
+        onUpdate: drawTimelinePath,
+        onRefresh: drawTimelinePath
+      }
+    });
+  </script>
+</body>
+</html>
